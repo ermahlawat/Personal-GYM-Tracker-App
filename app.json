@@ -1,0 +1,50 @@
+{
+  "expo": {
+    "name": "VCxPM Fitness",
+    "slug": "vcxpm-fitness",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#111111"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.vcxpm.fitness"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#111111"
+      },
+      "package": "com.vcxpm.fitness",
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "VIBRATE"
+      ]
+    },
+    "plugins": [
+      "expo-sqlite",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "VCxPM Fitness needs access to your photos to set your profile picture and upload progress photos.",
+          "cameraPermission": "VCxPM Fitness needs camera access to take progress photos."
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow VCxPM Fitness to save your workout export cards to your gallery.",
+          "savePhotosPermission": "Allow VCxPM Fitness to save images to your gallery."
+        }
+      ]
+    ]
+  }
+}
