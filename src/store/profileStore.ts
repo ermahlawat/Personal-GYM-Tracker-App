@@ -6,7 +6,6 @@ import { create } from 'zustand';
 import type { ThemeId } from '../theme/types';
 
 export type GoalId = 'muscle' | 'weight_loss' | 'general';
-
 export interface Profile {
   id: string;
   name: string;
@@ -40,12 +39,12 @@ const DEFAULT_PROFILES: Profile[] = [
     name: 'Pradeep Mahlawat',
     abbreviatedName: 'PM',
     goal: 'muscle',
-    theme: 'dark',
+    theme: 'blue',
     createdAt: new Date().toISOString(),
   },
   {
     id: 'vc',
-    name: 'Vishali Choudhary',
+    name: 'Vaishali Choudhary',
     abbreviatedName: 'VC',
     goal: 'weight_loss',
     theme: 'pink',

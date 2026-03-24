@@ -11,7 +11,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#111111"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.vcxpm.fitness"
@@ -30,7 +32,6 @@
       ]
     },
     "plugins": [
-      "expo-sqlite",
       [
         "expo-image-picker",
         {
@@ -44,7 +45,8 @@
           "photosPermission": "Allow VCxPM Fitness to save your workout export cards to your gallery.",
           "savePhotosPermission": "Allow VCxPM Fitness to save images to your gallery."
         }
-      ]
+      ],
+      "expo-sqlite"
     ]
   }
 }

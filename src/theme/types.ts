@@ -2,7 +2,7 @@
 // Every colour value in the app must come from this interface
 // via the useTheme() hook — never hardcoded in a component.
 
-export type ThemeId = 'dark' | 'pink' | 'clean';
+export type ThemeId = 'blue' | 'dark' | 'pink' | 'clean';
 
 export interface Theme {
   id: ThemeId;
