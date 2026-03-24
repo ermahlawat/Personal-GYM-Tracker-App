@@ -123,7 +123,148 @@ function BodySection({ theme, profileId }: { theme: any; profileId: string }) {
 function PhotosSection({ theme }: { theme: any }) {
   const [photos, setPhotos] = useState<{ uri: string; date: string; angle: string }[]>([]);
   const [selectedAngle, setSelectedAngle] = useState('Front');
+  const [compareMode, setCompareMode] = useState(false);
+  const [compareLeft, setCompareLeft] = useState<number | null>(null);
+  const [compareRight, setCompareRight] = useState<number | null>(null);
   const angles = ['Front', 'Side', 'Back'];
+
+  const handleUpload = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') { Alert.alert('Permission needed', 'Allow access to your photos.'); return; }
+    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, allowsEditing: true, aspect: [3, 4], quality: 0.8 });
+    if (!result.canceled && result.assets[0]) {
+      const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+      setPhotos((prev) => [{ uri: result.assets[0].uri, date: today, angle: selectedAngle }, ...prev]);
+    }
+  };
+
+  const handleCamera = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') { Alert.alert('Permission needed', 'Allow camera access.'); return; }
+    const result = await ImagePicker.launchCameraAsync({ allowsEditing: true, aspect: [3, 4], quality: 0.8 });
+    if (!result.canceled && result.assets[0]) {
+      const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+      setPhotos((prev) => [{ uri: result.assets[0].uri, date: today, angle: selectedAngle }, ...prev]);
+    }
+  };
+
+  const handlePhotoTap = (index: number) => {
+    if (!compareMode) return;
+    if (compareLeft === null) { setCompareLeft(index); }
+    else if (compareRight === null && index !== compareLeft) { setCompareRight(index); }
+    else { setCompareLeft(index); setCompareRight(null); }
+  };
+
+  const leftPhoto = compareLeft !== null ? photos[compareLeft] : null;
+  const rightPhoto = compareRight !== null ? photos[compareRight] : null;
+
+  return (
+    <ScrollView showsVerticalScrollIndicator={false}>
+      <View style={styles.sectionPad}>
+        <Text style={[styles.sectionHeading, { color: theme.textPrimary }]}>Progress photos</Text>
+
+        <View style={styles.angleRow}>
+          {angles.map((a) => (
+            <TouchableOpacity key={a} style={[styles.angleBtn, { backgroundColor: selectedAngle === a ? theme.accent : theme.surface, borderColor: selectedAngle === a ? theme.accent : theme.border }]} onPress={() => setSelectedAngle(a)}>
+              <Text style={{ fontSize: 12, fontWeight: '500', color: selectedAngle === a ? '#FFFFFF' : theme.textSecondary }}>{a}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <View style={styles.uploadBtns}>
+          <TouchableOpacity style={[styles.uploadBtn, { backgroundColor: theme.buttonBackground }]} onPress={handleCamera} activeOpacity={0.8}>
+            <Text style={[styles.uploadBtnText, { color: theme.buttonText }]}>Take photo</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.uploadBtn, { backgroundColor: theme.surface, borderWidth: 0.5, borderColor: theme.border }]} onPress={handleUpload} activeOpacity={0.8}>
+            <Text style={[styles.uploadBtnText, { color: theme.textSecondary }]}>Choose from gallery</Text>
+          </TouchableOpacity>
+        </View>
+
+        {compareMode && (
+          <View style={[styles.compareContainer, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+            <View style={[styles.compareHeader, { borderBottomColor: theme.border }]}>
+              <Text style={[styles.compareTitle, { color: theme.textPrimary }]}>Compare photos</Text>
+              <TouchableOpacity onPress={() => { setCompareMode(false); setCompareLeft(null); setCompareRight(null); }}>
+                <Text style={[styles.compareCancelText, { color: theme.textLabel }]}>Done</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.compareSideBySide}>
+              <View style={styles.compareSlot}>
+                {leftPhoto ? (
+                  <>
+                    <Image source={{ uri: leftPhoto.uri }} style={styles.compareImage} />
+                    <Text style={[styles.compareSlotLabel, { color: theme.textSecondary }]}>{leftPhoto.date}</Text>
+                    <Text style={[styles.compareSlotAngle, { color: theme.textLabel }]}>{leftPhoto.angle}</Text>
+                  </>
+                ) : (
+                  <View style={[styles.compareSlotEmpty, { borderColor: theme.border }]}>
+                    <Text style={[styles.compareSlotEmptyText, { color: theme.textLabel }]}>Tap a photo{'\n'}below</Text>
+                  </View>
+                )}
+              </View>
+              <View style={[styles.compareDivider, { backgroundColor: theme.border }]} />
+              <View style={styles.compareSlot}>
+                {rightPhoto ? (
+                  <>
+                    <Image source={{ uri: rightPhoto.uri }} style={styles.compareImage} />
+                    <Text style={[styles.compareSlotLabel, { color: theme.textSecondary }]}>{rightPhoto.date}</Text>
+                    <Text style={[styles.compareSlotAngle, { color: theme.textLabel }]}>{rightPhoto.angle}</Text>
+                  </>
+                ) : (
+                  <View style={[styles.compareSlotEmpty, { borderColor: compareLeft !== null ? theme.accent : theme.border }]}>
+                    <Text style={[styles.compareSlotEmptyText, { color: compareLeft !== null ? theme.accent : theme.textLabel }]}>
+                      {compareLeft !== null ? 'Now tap\nanother' : 'Tap a photo\nbelow'}
+                    </Text>
+                  </View>
+                )}
+              </View>
+            </View>
+            {compareLeft !== null && compareRight !== null && (
+              <Text style={[styles.compareHint, { color: theme.textLabel }]}>Tap any photo to change the comparison</Text>
+            )}
+          </View>
+        )}
+
+        {photos.length > 0 && (
+          <View style={styles.photoGridHeader}>
+            <Text style={[styles.photoGridTitle, { color: theme.textLabel }]}>{photos.length} photo{photos.length !== 1 ? 's' : ''}</Text>
+            {photos.length >= 2 && (
+              <TouchableOpacity onPress={() => { setCompareMode(!compareMode); setCompareLeft(null); setCompareRight(null); }}>
+                <Text style={[styles.compareToggleText, { color: compareMode ? theme.accent : theme.textSecondary }]}>
+                  {compareMode ? 'Cancel compare' : 'Compare'}
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+
+        {photos.length === 0 ? (
+          <Text style={[styles.emptyHint, { color: theme.textLabel, textAlign: 'center', marginTop: 20 }]}>No photos yet. Take your first progress photo above.</Text>
+        ) : (
+          <View style={styles.photoGrid}>
+            {photos.map((p, i) => {
+              const isSelectedLeft = compareLeft === i;
+              const isSelectedRight = compareRight === i;
+              const isSelected = isSelectedLeft || isSelectedRight;
+              return (
+                <TouchableOpacity key={i} style={[styles.photoCard, { backgroundColor: theme.surface, borderColor: isSelected ? theme.accent : theme.border, borderWidth: isSelected ? 2 : 0.5 }]} onPress={() => handlePhotoTap(i)} activeOpacity={compareMode ? 0.7 : 1}>
+                  <Image source={{ uri: p.uri }} style={styles.photoThumb} />
+                  {isSelected && (
+                    <View style={[styles.photoSelectedBadge, { backgroundColor: theme.accent }]}>
+                      <Text style={styles.photoSelectedBadgeText}>{isSelectedLeft ? 'A' : 'B'}</Text>
+                    </View>
+                  )}
+                  <Text style={[styles.photoLabel, { color: theme.textSecondary }]}>{p.angle}</Text>
+                  <Text style={[styles.photoDate, { color: theme.textLabel }]}>{p.date}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        )}
+      </View>
+    </ScrollView>
+  );
+}
 
   const handleUpload = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
