@@ -1,28 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View, Text, StyleSheet, SafeAreaView, StatusBar,
-  ScrollView, TouchableOpacity, TextInput, Alert, Image,
-} from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, StatusBar, ScrollView, TouchableOpacity, TextInput, Alert, Image } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useTheme } from '../../theme';
 import { useProfileStore } from '../../store/profileStore';
-import {
-  saveMeasurement, getLatestMeasurement, getMeasurementsInRange,
-  saveGoal, getGoals, type MeasurementEntry,
-} from '../../database/queries/measurementQueries';
+import { saveMeasurement, getLatestMeasurement, getMeasurementsInRange, saveGoal, getGoals, type MeasurementEntry } from '../../database/queries/measurementQueries';
 
 type SubSection = 'body' | 'photos' | 'charts';
 
 const MEASUREMENT_FIELDS = [
-  { key: 'weightKg',     label: 'Weight',      unit: 'kg' },
-  { key: 'neckCm',       label: 'Neck',        unit: 'cm' },
-  { key: 'shouldersCm',  label: 'Shoulders',   unit: 'cm' },
-  { key: 'chestCm',      label: 'Chest',       unit: 'cm' },
+  { key: 'weightKg', label: 'Weight', unit: 'kg' },
+  { key: 'neckCm', label: 'Neck', unit: 'cm' },
+  { key: 'shouldersCm', label: 'Shoulders', unit: 'cm' },
+  { key: 'chestCm', label: 'Chest', unit: 'cm' },
   { key: 'upperWaistCm', label: 'Upper Waist', unit: 'cm' },
   { key: 'lowerWaistCm', label: 'Lower Waist', unit: 'cm' },
-  { key: 'glutesCm',     label: 'Glutes',      unit: 'cm' },
-  { key: 'thighsCm',     label: 'Thighs',      unit: 'cm' },
-  { key: 'calvesCm',     label: 'Calves',      unit: 'cm' },
+  { key: 'glutesCm', label: 'Glutes', unit: 'cm' },
+  { key: 'thighsCm', label: 'Thighs', unit: 'cm' },
+  { key: 'calvesCm', label: 'Calves', unit: 'cm' },
 ];
 
 const CHART_COLOURS: Record<string, string> = {
@@ -32,10 +26,8 @@ const CHART_COLOURS: Record<string, string> = {
 };
 
 const TIME_RANGES = [
-  { label: '2 weeks', days: 14 },
-  { label: '1 month', days: 30 },
-  { label: '3 months', days: 90 },
-  { label: 'All time', days: 3650 },
+  { label: '2 weeks', days: 14 }, { label: '1 month', days: 30 },
+  { label: '3 months', days: 90 }, { label: 'All time', days: 3650 },
 ];
 
 function todayString(): string { return new Date().toISOString().split('T')[0]; }
@@ -57,15 +49,15 @@ function BodySection({ theme, profileId }: { theme: any; profileId: string }) {
     try {
       saveMeasurement({
         profileId, date: todayString(),
-        weightKg:     values.weightKg     ? parseFloat(values.weightKg)     : undefined,
-        neckCm:       values.neckCm       ? parseFloat(values.neckCm)       : undefined,
-        shouldersCm:  values.shouldersCm  ? parseFloat(values.shouldersCm)  : undefined,
-        chestCm:      values.chestCm      ? parseFloat(values.chestCm)      : undefined,
+        weightKg: values.weightKg ? parseFloat(values.weightKg) : undefined,
+        neckCm: values.neckCm ? parseFloat(values.neckCm) : undefined,
+        shouldersCm: values.shouldersCm ? parseFloat(values.shouldersCm) : undefined,
+        chestCm: values.chestCm ? parseFloat(values.chestCm) : undefined,
         upperWaistCm: values.upperWaistCm ? parseFloat(values.upperWaistCm) : undefined,
         lowerWaistCm: values.lowerWaistCm ? parseFloat(values.lowerWaistCm) : undefined,
-        glutesCm:     values.glutesCm     ? parseFloat(values.glutesCm)     : undefined,
-        thighsCm:     values.thighsCm     ? parseFloat(values.thighsCm)     : undefined,
-        calvesCm:     values.calvesCm     ? parseFloat(values.calvesCm)     : undefined,
+        glutesCm: values.glutesCm ? parseFloat(values.glutesCm) : undefined,
+        thighsCm: values.thighsCm ? parseFloat(values.thighsCm) : undefined,
+        calvesCm: values.calvesCm ? parseFloat(values.calvesCm) : undefined,
       });
       setPrevious(getLatestMeasurement(profileId));
       setValues({});
@@ -162,7 +154,6 @@ function PhotosSection({ theme }: { theme: any }) {
     <ScrollView showsVerticalScrollIndicator={false}>
       <View style={styles.sectionPad}>
         <Text style={[styles.sectionHeading, { color: theme.textPrimary }]}>Progress photos</Text>
-
         <View style={styles.angleRow}>
           {angles.map((a) => (
             <TouchableOpacity key={a} style={[styles.angleBtn, { backgroundColor: selectedAngle === a ? theme.accent : theme.surface, borderColor: selectedAngle === a ? theme.accent : theme.border }]} onPress={() => setSelectedAngle(a)}>
@@ -170,7 +161,6 @@ function PhotosSection({ theme }: { theme: any }) {
             </TouchableOpacity>
           ))}
         </View>
-
         <View style={styles.uploadBtns}>
           <TouchableOpacity style={[styles.uploadBtn, { backgroundColor: theme.buttonBackground }]} onPress={handleCamera} activeOpacity={0.8}>
             <Text style={[styles.uploadBtnText, { color: theme.buttonText }]}>Take photo</Text>
@@ -266,67 +256,6 @@ function PhotosSection({ theme }: { theme: any }) {
   );
 }
 
-  const handleUpload = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') { Alert.alert('Permission needed', 'Allow access to your photos.'); return; }
-    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, allowsEditing: true, aspect: [3, 4], quality: 0.8 });
-    if (!result.canceled && result.assets[0]) {
-      const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-      setPhotos((prev) => [{ uri: result.assets[0].uri, date: today, angle: selectedAngle }, ...prev]);
-    }
-  };
-
-  const handleCamera = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') { Alert.alert('Permission needed', 'Allow camera access.'); return; }
-    const result = await ImagePicker.launchCameraAsync({ allowsEditing: true, aspect: [3, 4], quality: 0.8 });
-    if (!result.canceled && result.assets[0]) {
-      const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-      setPhotos((prev) => [{ uri: result.assets[0].uri, date: today, angle: selectedAngle }, ...prev]);
-    }
-  };
-
-  return (
-    <ScrollView showsVerticalScrollIndicator={false}>
-      <View style={styles.sectionPad}>
-        <Text style={[styles.sectionHeading, { color: theme.textPrimary }]}>Progress photos</Text>
-        <View style={styles.angleRow}>
-          {angles.map((a) => (
-            <TouchableOpacity
-              key={a}
-              style={[styles.angleBtn, { backgroundColor: selectedAngle === a ? theme.accent : theme.surface, borderColor: selectedAngle === a ? theme.accent : theme.border }]}
-              onPress={() => setSelectedAngle(a)}
-            >
-              <Text style={{ fontSize: 12, fontWeight: '500', color: selectedAngle === a ? '#FFFFFF' : theme.textSecondary }}>{a}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        <View style={styles.uploadBtns}>
-          <TouchableOpacity style={[styles.uploadBtn, { backgroundColor: theme.buttonBackground }]} onPress={handleCamera} activeOpacity={0.8}>
-            <Text style={[styles.uploadBtnText, { color: theme.buttonText }]}>Take photo</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.uploadBtn, { backgroundColor: theme.surface, borderWidth: 0.5, borderColor: theme.border }]} onPress={handleUpload} activeOpacity={0.8}>
-            <Text style={[styles.uploadBtnText, { color: theme.textSecondary }]}>Choose from gallery</Text>
-          </TouchableOpacity>
-        </View>
-        {photos.length === 0 ? (
-          <Text style={[styles.emptyHint, { color: theme.textLabel }]}>No photos yet. Take your first progress photo above.</Text>
-        ) : (
-          <View style={styles.photoGrid}>
-            {photos.map((p, i) => (
-              <View key={i} style={[styles.photoCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-                <Image source={{ uri: p.uri }} style={styles.photoThumb} />
-                <Text style={[styles.photoLabel, { color: theme.textSecondary }]}>{p.angle}</Text>
-                <Text style={[styles.photoDate, { color: theme.textLabel }]}>{p.date}</Text>
-              </View>
-            ))}
-          </View>
-        )}
-      </View>
-    </ScrollView>
-  );
-}
-
 function ChartsSection({ theme, profileId }: { theme: any; profileId: string }) {
   const [activeRange, setActiveRange] = useState(0);
   const [data, setData] = useState<MeasurementEntry[]>([]);
@@ -374,11 +303,7 @@ function ChartsSection({ theme, profileId }: { theme: any; profileId: string }) 
             const isActive = activeMetrics.has(f.key);
             const colour = CHART_COLOURS[f.key];
             return (
-              <TouchableOpacity
-                key={f.key}
-                style={[styles.metricToggle, { backgroundColor: isActive ? colour + '22' : 'transparent', borderColor: isActive ? colour : theme.border }]}
-                onPress={() => toggleMetric(f.key)}
-              >
+              <TouchableOpacity key={f.key} style={[styles.metricToggle, { backgroundColor: isActive ? colour + '22' : 'transparent', borderColor: isActive ? colour : theme.border }]} onPress={() => toggleMetric(f.key)}>
                 <View style={[styles.metricDot, { backgroundColor: colour }]} />
                 <Text style={[styles.metricToggleText, { color: isActive ? theme.textPrimary : theme.textLabel }]}>{f.label}</Text>
               </TouchableOpacity>
@@ -387,11 +312,7 @@ function ChartsSection({ theme, profileId }: { theme: any; profileId: string }) 
         </ScrollView>
         <View style={styles.timeRow}>
           {TIME_RANGES.map((r, i) => (
-            <TouchableOpacity
-              key={i}
-              style={[styles.timeBtn, { backgroundColor: activeRange === i ? theme.pillActive : theme.pillInactive, borderColor: activeRange === i ? theme.pillActive : theme.border }]}
-              onPress={() => setActiveRange(i)}
-            >
+            <TouchableOpacity key={i} style={[styles.timeBtn, { backgroundColor: activeRange === i ? theme.pillActive : theme.pillInactive, borderColor: activeRange === i ? theme.pillActive : theme.border }]} onPress={() => setActiveRange(i)}>
               <Text style={[styles.timeBtnText, { color: activeRange === i ? theme.pillActiveText : theme.pillInactiveText }]}>{r.label}</Text>
             </TouchableOpacity>
           ))}
@@ -428,12 +349,7 @@ function ChartsSection({ theme, profileId }: { theme: any; profileId: string }) 
               <Text style={[styles.goalLabel, { color: theme.textSecondary }]}>{f.label}</Text>
               {isEditing ? (
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                  <TextInput
-                    style={[styles.goalInput, { backgroundColor: theme.surface, borderColor: theme.accent, color: theme.textPrimary }]}
-                    value={goalInput} onChangeText={setGoalInput}
-                    keyboardType="decimal-pad" autoFocus
-                    placeholder="Target" placeholderTextColor={theme.textLabel}
-                  />
+                  <TextInput style={[styles.goalInput, { backgroundColor: theme.surface, borderColor: theme.accent, color: theme.textPrimary }]} value={goalInput} onChangeText={setGoalInput} keyboardType="decimal-pad" autoFocus placeholder="Target" placeholderTextColor={theme.textLabel} />
                   <TouchableOpacity onPress={() => handleSaveGoal(f.key)} style={[styles.goalSaveBtn, { backgroundColor: theme.accent }]}>
                     <Text style={{ fontSize: 11, fontWeight: '500', color: theme.buttonText }}>Save</Text>
                   </TouchableOpacity>
@@ -473,18 +389,14 @@ export default function ProgressScreen() {
         {([{ id: 'body', label: 'Body' }, { id: 'photos', label: 'Photos' }, { id: 'charts', label: 'Charts' }] as const).map((s) => {
           const isActive = activeSection === s.id;
           return (
-            <TouchableOpacity
-              key={s.id}
-              style={[styles.pill, { backgroundColor: isActive ? theme.accent : theme.surface, borderColor: isActive ? theme.accent : theme.border }]}
-              onPress={() => setActiveSection(s.id)} activeOpacity={0.8}
-            >
+            <TouchableOpacity key={s.id} style={[styles.pill, { backgroundColor: isActive ? theme.accent : theme.surface, borderColor: isActive ? theme.accent : theme.border }]} onPress={() => setActiveSection(s.id)} activeOpacity={0.8}>
               <Text style={[styles.pillText, { color: isActive ? '#FFFFFF' : theme.textSecondary }]}>{s.label}</Text>
             </TouchableOpacity>
           );
         })}
       </View>
       <View style={{ flex: 1 }}>
-        {activeSection === 'body'   && <BodySection   theme={theme} profileId={profile.id} />}
+        {activeSection === 'body' && <BodySection theme={theme} profileId={profile.id} />}
         {activeSection === 'photos' && <PhotosSection theme={theme} />}
         {activeSection === 'charts' && <ChartsSection theme={theme} profileId={profile.id} />}
       </View>
@@ -515,11 +427,29 @@ const styles = StyleSheet.create({
   uploadBtns: { gap: 10, marginBottom: 24 },
   uploadBtn: { borderRadius: 8, paddingVertical: 13, alignItems: 'center' },
   uploadBtnText: { fontSize: 13, fontWeight: '500' },
+  photoGridHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
+  photoGridTitle: { fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.6, fontWeight: '500' },
+  compareToggleText: { fontSize: 12, fontWeight: '500' },
   photoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  photoCard: { width: '47%', borderRadius: 10, borderWidth: 0.5, overflow: 'hidden' },
-  photoThumb: { width: '100%', aspectRatio: 3 / 4 },
+  photoCard: { width: '47%', borderRadius: 10, overflow: 'hidden' },
+  photoThumb: { width: '100%', aspectRatio: 0.75 },
   photoLabel: { fontSize: 11, fontWeight: '500', paddingHorizontal: 8, paddingTop: 6 },
   photoDate: { fontSize: 10, paddingHorizontal: 8, paddingBottom: 8 },
+  photoSelectedBadge: { position: 'absolute', top: 8, right: 8, width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
+  photoSelectedBadgeText: { fontSize: 11, fontWeight: '700', color: '#FFFFFF' },
+  compareContainer: { borderRadius: 12, borderWidth: 0.5, overflow: 'hidden', marginBottom: 20 },
+  compareHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 0.5 },
+  compareTitle: { fontSize: 13, fontWeight: '500' },
+  compareCancelText: { fontSize: 12 },
+  compareSideBySide: { flexDirection: 'row', padding: 12, gap: 8 },
+  compareSlot: { flex: 1, alignItems: 'center' },
+  compareImage: { width: '100%', aspectRatio: 0.75, borderRadius: 8 },
+  compareSlotLabel: { fontSize: 11, fontWeight: '500', marginTop: 6 },
+  compareSlotAngle: { fontSize: 10 },
+  compareSlotEmpty: { width: '100%', aspectRatio: 0.75, borderRadius: 8, borderWidth: 1.5, borderStyle: 'dashed', alignItems: 'center', justifyContent: 'center' },
+  compareSlotEmptyText: { fontSize: 12, textAlign: 'center', lineHeight: 18 },
+  compareDivider: { width: 0.5, alignSelf: 'stretch' },
+  compareHint: { fontSize: 11, textAlign: 'center', paddingBottom: 10 },
   emptyHint: { fontSize: 11, textAlign: 'center', lineHeight: 18 },
   metricToggle: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 14, borderWidth: 0.5 },
   metricDot: { width: 8, height: 8, borderRadius: 4 },

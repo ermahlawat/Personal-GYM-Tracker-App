@@ -15,7 +15,7 @@ import {
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useProfileStore } from '../../store/profileStore';
 import { AppButton } from '../../components/common/AppButton';
-import { darkTheme } from '../../theme/dark';
+import { obsidianTheme as darkTheme } from '../../theme/obsidian';
 import { StepDots } from './components/StepDots';
 
 // Onboarding always uses dark theme

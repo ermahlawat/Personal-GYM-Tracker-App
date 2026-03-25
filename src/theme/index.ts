@@ -1,6 +1,6 @@
-export { darkTheme } from './dark';
-export { blueTheme } from './blue';
-export { pinkTheme } from './pink';
-export { cleanTheme } from './clean';
+export { obsidianTheme } from './obsidian';
+export { pearlTheme } from './pearl';
+export { slateTheme } from './slate';
+export { chalkTheme } from './chalk';
 export { useTheme } from './useTheme';
 export type { Theme, ThemeId } from './types';

@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AppButton } from '../../components/common/AppButton';
-import { darkTheme } from '../../theme/dark';
+import { obsidianTheme as darkTheme } from '../../theme/obsidian';
 
 // WelcomeScreen always uses darkTheme — we hardcode it here intentionally
 const theme = darkTheme;
